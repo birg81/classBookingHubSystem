@@ -1,0 +1,80 @@
+CREATE DATABASE gestore_interrogazioni;
+USE gestore_interrogazioni;
+
+
+CREATE TABLE studente(
+email_studente VARCHAR(100) PRIMARY KEY,
+password_studente VARCHAR(255),
+nome VARCHAR(30) NOT NULL,
+cognome VARCHAR(30) NOT NULL,
+classe INT NOT NULL,
+sezione VARCHAR(5) NOT NULL
+);
+
+CREATE TABLE docente(
+email_docente VARCHAR(100) PRIMARY KEY,
+password_docente VARCHAR(255),
+nome VARCHAR(30) NOT NULL,
+cognome VARCHAR(30) NOT NULL,
+classi VARCHAR(50) NOT NULL,
+materie VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE interrogazione(
+ID INT AUTO_INCREMENT PRIMARY KEY,
+data DATE DEFAULT '1970-01-01',
+ora TIME DEFAULT NULL,
+numero_studenti INT NOT NUll,
+stato VARCHAR(15) CHECK (stato = 'disponibile' OR stato = 'prenotato'),
+email_docente VARCHAR(100),
+FOREIGN KEY (email_docente) REFERENCES docente(email_docente)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+);
+
+CREATE TABLE prenotazione(
+email_studente VARCHAR(100),
+id INT,
+tempo_limite DATETIME NOT NULL,
+FOREIGN KEY (email_studente) REFERENCES studente(email_studente)
+ON UPDATE CASCADE
+ON DELETE CASCADE,
+FOREIGN KEY (id) REFERENCES interrogazione(id)
+ON UPDATE CASCADE
+ON DELETE CASCADE
+);
+
+
+INSERT INTO studente (email_studente, password_studente, nome, cognome, classe, sezione) VALUES
+('giovanni.rossi@example.com', 'password123', 'Giovanni', 'Rossi', 3, 'A'),
+('maria.bianchi@example.com', 'securepass456', 'Maria', 'Bianchi', 4, 'B'),
+('andrea.verdi@example.com', 'andrea2023', 'Andrea', 'Verdi', 2, 'C'),
+('elena.neri@example.com', 'mypassword789', 'Elena', 'Neri', 5, 'D'),
+('lucia.gialli@example.com', 'lucia12345', 'Lucia', 'Gialli', 1, 'E');
+
+INSERT INTO docente (email_docente, password_docente, nome, cognome, classi, materie) VALUES
+('marta.ferrari@example.com', 'teacherpass123', 'Marta', 'Ferrari', '3A,4B,5D', 'Matematica, Fisica'),
+('luigi.martini@example.com', 'luigimartini456', 'Luigi', 'Martini', '2C,5D', 'Storia, Geografia'),
+('alessandra.smith@example.com', 'alessandra789', 'Alessandra', 'Smith', '4B,5E', 'Italiano, Inglese'),
+('giuseppe.russo@example.com', 'russo1234', 'Giuseppe', 'Russo', '1E,2C', 'Scienze, Chimica'),
+('francesca.papa@example.com', 'francesca@p@ssw0rd', 'Francesca', 'Papa', '3A,4B', 'Arte, Musica');
+
+INSERT INTO interrogazione (data, ora, numero_studenti, stato, email_docente) VALUES
+('2025-03-25', '10:00:00', 2, 'disponibile', 'marta.ferrari@example.com'),
+('2025-03-26', '11:00:00', 1, 'disponibile', 'luigi.martini@example.com'),
+('2025-03-27', '14:30:00', 2, 'disponibile', 'alessandra.smith@example.com'),
+('2025-03-28', '09:00:00', 2, 'disponibile', 'giuseppe.russo@example.com'),
+('2025-03-29', '15:00:00', 3, 'disponibile', 'francesca.papa@example.com');
+
+INSERT INTO prenotazione (email_studente, id, tempo_limite) VALUES
+('giovanni.rossi@example.com', 1, '2025-03-25 10:00:00'),
+('maria.bianchi@example.com', 2, '2025-03-26 11:00:00'),
+('andrea.verdi@example.com', 3, '2025-03-27 14:30:00'),
+('elena.neri@example.com', 4, '2025-03-28 09:00:00'),
+('lucia.gialli@example.com', 5, '2025-03-29 15:00:00');
+
+SELECT * FROM interrogazione
+WHERE data = '2025-03-25';
+
+SELECT interrogazione.data, interrogazione.ora, interrogazione.numero_studenti, interrogazione.stato, docente.nome, docente.cognome FROM interrogazione
+INNER JOIN docente ON docente.email_docente = interrogazione.email_docente;
